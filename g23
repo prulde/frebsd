@@ -1,0 +1,178 @@
+#include <stdio.h>
+#include <curses.h>
+#include <unistd.h>
+#include <vector>
+
+#if defined(NCURSES_EXT_FUNCS) && NCURSES_EXT_FUNCS >= 20081102
+#ifdef HAVE_SET_ESCDELAY_FUNC
+    set_escdelay(0);
+#endif
+#endif
+
+int kbhit(void)
+{
+    int ch = getch();
+    
+    if (ch != ERR) { return ch; }
+    else { return 0; }
+}
+
+int main(void)
+{
+    initscr();
+    clear();
+    cbreak();
+    scrollok(stdscr, true);
+    noecho();
+    keypad(stdscr, TRUE);
+    nodelay(stdscr, TRUE);
+    //wmove(stdscr,LINES/2, COLS/2-1);
+  	 //wrefresh(stdscr);
+    int clockw = 1, i  =  0;
+    int c =1;
+    int roty1,rotx1;
+    int roty2,rotx2;
+
+    int roty12,rotx12;
+    int roty22,rotx22;
+
+    int switchclockw=0;
+    start_color();
+    init_pair(1,COLOR_GREEN,COLOR_GREEN);
+    init_pair(2,COLOR_YELLOW,COLOR_BLACK);
+    init_pair(3,COLOR_MAGENTA,COLOR_WHITE);
+    init_pair(4,COLOR_CYAN,COLOR_BLACK);
+    init_pair(5,COLOR_RED,COLOR_WHITE);
+    init_pair(6,COLOR_BLUE,COLOR_WHITE);
+
+    while (c != 27)
+    {
+   	 while (1)
+   	 {
+   		 int ch = kbhit();
+   		 if (ch != 0)
+   		 {
+   			 switch (ch) {
+   			 case 27:
+   			 { return 0; }
+   			 case 32:
+   			 {
+   				 if(switchclockw==0)
+   					 switchclockw=1;
+   				 else if(switchclockw==1)
+   					 switchclockw=2;
+   				 else if(switchclockw==2)
+   					 switchclockw=1;
+   			 }
+   			 }    
+   		 }
+   		 else
+   		 {
+   		 switch(switchclockw){
+   			 case 0:
+   				 break;
+   			 case 1:
+   				 if (clockw % 5 == 0)
+   					 {
+   						 clockw = 1;
+   					 }
+
+   					 switch(clockw){
+   						 case 1:
+   							 roty1=LINES/2; rotx1=COLS/2-4;
+   							 roty2=LINES/2-1;rotx2=COLS/2-4;
+   		 
+   							 roty12=LINES/2; rotx12=COLS/2+3;
+   							 roty22=LINES/2-1;rotx22=COLS/2+4;
+   							 break;
+   						 case 2:
+   							 roty1=LINES/2-1; rotx1=COLS/2-4;
+   							 roty2=LINES/2;rotx2=COLS/2-4;
+
+   							 roty12=LINES/2-1; rotx12=COLS/2+3;
+   							 roty22=LINES/2;rotx22=COLS/2+4;
+   							 break;
+   						 case 3:
+   							 roty1=LINES/2-1; rotx1=COLS/2-4;
+   							 roty2=LINES/2;rotx2=COLS/2-3;
+
+   							 roty12=LINES/2-1; rotx12=COLS/2+4;
+   							 roty22=LINES/2;rotx22=COLS/2+4;
+   							 break;
+   						 case 4:
+   							 roty1=LINES/2; rotx1=COLS/2-4;
+   							 roty2=LINES/2-1;rotx2=COLS/2-3;
+
+   							 roty12=LINES/2; rotx12=COLS/2+4;
+   							 roty22=LINES/2-1;rotx22=COLS/2+4;
+   							 break;
+   					 }
+   					 mvchgat(roty1,rotx1, 2, A_NORMAL, 1, NULL);
+   					 mvchgat(roty2,rotx2, 1, A_NORMAL, 1, NULL);
+
+   					 mvchgat(roty12,rotx12, 2, A_NORMAL, 1, NULL);
+   					 mvchgat(roty22,rotx22, 1, A_NORMAL, 1, NULL);
+
+   					 wmove(stdscr,0, 0);
+  						 wrefresh(stdscr);
+   					 usleep(500000);
+   					 clear();
+   					 //c++;
+   					 clockw++;
+   					 break;
+   			 case 2:
+   				 if (clockw % 5 == 0)
+   					 {
+   						 clockw = 1;
+   					 }
+
+   					 switch(clockw){
+   						 case 1:
+   							 roty1=LINES/2; rotx1=COLS/2-4;
+   							 roty2=LINES/2-1;rotx2=COLS/2-3;
+   		 
+   							 roty12=LINES/2; rotx12=COLS/2+4;
+   							 roty22=LINES/2-1;rotx22=COLS/2+4;
+   							 break;
+   						 case 2:
+   							 roty1=LINES/2-1; rotx1=COLS/2-4;
+   							 roty2=LINES/2;rotx2=COLS/2-3;
+
+   							 roty12=LINES/2-1; rotx12=COLS/2+4;
+   							 roty22=LINES/2;rotx22=COLS/2+4;
+   							 break;
+   						 case 3:
+   							 roty1=LINES/2-1; rotx1=COLS/2-4;
+   							 roty2=LINES/2;rotx2=COLS/2-4;
+
+   							 roty12=LINES/2-1; rotx12=COLS/2+3;
+   							 roty22=LINES/2;rotx22=COLS/2+4;
+   							 break;
+   						 case 4:
+   							 roty1=LINES/2; rotx1=COLS/2-4;
+   							 roty2=LINES/2-1;rotx2=COLS/2-4;
+
+   							 roty12=LINES/2; rotx12=COLS/2+3;
+   							 roty22=LINES/2-1;rotx22=COLS/2+4;
+   							 break;
+   					 }
+   					 mvchgat(roty1,rotx1, 2, A_NORMAL, 1, NULL);
+   					 mvchgat(roty2,rotx2, 1, A_NORMAL, 1, NULL);
+
+   					 mvchgat(roty12,rotx12, 2, A_NORMAL, 1, NULL);
+   					 mvchgat(roty22,rotx22, 1, A_NORMAL, 1, NULL);
+
+   					 wmove(stdscr,0, 0);
+  						 wrefresh(stdscr);
+   					 usleep(500000);
+   					 clear();
+   					 //c++;
+   					 clockw++;
+   					 break;
+   		 }    
+   		 }
+   	 }
+    }
+    return 0;
+}
+
