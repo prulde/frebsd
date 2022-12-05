@@ -1,0 +1,270 @@
+#include <curses.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <cstdlib>
+#include <algorithm>
+#include <iostream>
+using namespace std;
+
+void nload(int i, bool isend)
+{
+    if(isend)
+   	 init_pair(1,COLOR_BLACK, COLOR_GREEN);
+    else
+   	 init_pair(2,COLOR_BLACK, COLOR_RED);
+    for(int h=0;h<2;++h)
+   	 {
+   		 mvchgat(0,i,1, A_NORMAL,isend ? 1 : 2,NULL);
+   		 wmove(stdscr,1,0+i);
+   		 wrefresh(stdscr);
+
+   		 mvprintw(1,0+i,"-");
+   		 usleep(100000);
+   		 getch();
+   		 
+   		 wmove(stdscr,1,0+i);
+   		 wrefresh(stdscr);
+
+   		 mvprintw(1,0+i,"\\");
+   		 usleep(100000);
+   		 getch();
+
+   		 wmove(stdscr,1,0+i);
+   		 wrefresh(stdscr);
+
+   		 mvprintw(1,0+i,"|");
+   		 usleep(100000);
+   		 getch();
+    
+   		 wmove(stdscr,1,0+i);
+   		 wrefresh(stdscr);
+   	 
+   		 mvprintw(1,0+i,"/");
+   		 usleep(100000);
+   		 getch();
+
+   		 wmove(stdscr,1,0+i);
+   		 wrefresh(stdscr);
+   	 }
+    
+}
+
+void nloadagain(int i)
+{
+    init_pair(1,COLOR_BLACK, COLOR_GREEN);
+    mvchgat(0,0+i,1, A_NORMAL,1,NULL);
+    wmove(stdscr,1,0+i);
+    wrefresh(stdscr);
+}
+
+
+int main()
+{
+int i,n,t=0,k=0,minind=0;
+string s;
+initscr();scrollok(stdscr, true);nocbreak();start_color();
+int ch=getch();
+while(ch!='\n')
+{
+    s.push_back(ch);
+    ch = getch();
+}
+nodelay(stdscr,true);
+n=s.length();
+int row,col;
+getmaxyx(stdscr,row,col);
+
+//printw("%i %i",row,col);
+printw("\n");
+getch();
+
+nload(n-1,false);
+mvprintw(1,n-1,"-");
+getch();
+
+wmove(stdscr,1,n-1);
+wrefresh(stdscr);
+
+for(i=n-1;i>1;--i)
+{
+    mvprintw(1,i,"<");
+    getch();
+
+    wmove(stdscr,1,0+i-1);
+    wrefresh(stdscr);
+
+    usleep(100000);
+
+    if(s[i-1]<s[i])
+    {
+   	 mvprintw(1,i,"<");
+   	 getch();
+
+   	 wmove(stdscr,1,0+i);
+   	 wrefresh(stdscr);
+
+   	 nload(i-1,true);
+
+   	 mvprintw(1,0+i-1,">");
+   	 usleep(100000);
+   	 getch();
+
+   	 wmove(stdscr,1,0+i-1);
+   	 wrefresh(stdscr);
+
+   	 mvprintw(1,i,"-");
+   	 getch();
+   	 
+   	 wmove(stdscr,1,0+i-1);
+   	 wrefresh(stdscr);
+
+   	 t=i-1;
+   	 break;
+    }
+    else
+    {
+   	 mvprintw(1,i,"<");
+   	 getch();
+
+   	 wmove(stdscr,1,0+i-1);
+   	 wrefresh(stdscr);
+
+   	 t=0;
+   	 nload(i-1,false);
+
+   	 mvprintw(1,0+i-1,"-");
+   	 getch();
+
+   	 wmove(stdscr,1,0+i-1);
+   	 wrefresh(stdscr);
+
+   	 mvprintw(1,i,"-");
+   	 getch();
+   	 
+   	 wmove(stdscr,1,0+i-1);
+   	 wrefresh(stdscr);
+
+    }
+}
+usleep(100000);
+//wmove(stdscr,3,0);
+//wrefresh(stdscr);
+init_pair(1,COLOR_BLACK, COLOR_GREEN);
+if(t==0)
+{
+    mvprintw(3,0,"No changes needed");
+    getch();
+    wmove(stdscr,4,0);
+    wrefresh(stdscr);
+    return 0;
+}
+else
+{
+    mvprintw(1,t,">");
+    getch();
+    wmove(stdscr,1,t);
+    wrefresh(stdscr);
+
+    for(i=n-1;i!=t;--i)
+    {
+   	 usleep(100000);
+   	 if(s[i]>s[t])
+   	 {
+   		 nload(i,false);
+   		 minind=i;
+   		 mvprintw(1,i,"-");
+   		 getch();
+   		 wmove(stdscr,1,i);
+   		 wrefresh(stdscr);
+   	 }
+   	 else
+   	 {
+   		 nload(i,false);
+   		 minind=i;
+   		 mvprintw(1,i,"-");
+   		 getch();
+   		 wmove(stdscr,1,i);
+   		 wrefresh(stdscr);
+   	 }
+    }
+    nloadagain(minind);
+    mvprintw(1,minind,"<");
+    getch();
+    
+    wmove(stdscr,1,minind);
+    wrefresh(stdscr);
+
+    usleep(300000);
+
+    k=s[minind];
+    s[minind]=s[t];
+    s[t]=k;
+
+//
+
+    nload(minind,true);
+    mvprintw(1,minind,">");
+    getch();
+    
+    wmove(stdscr,1,minind);
+    wrefresh(stdscr);
+
+    mvprintw(0,minind,"%c",s[minind]);
+    getch();
+
+    mvchgat(0,minind,1, A_NORMAL,1,NULL);
+    wmove(stdscr,1,minind);
+    wrefresh(stdscr);
+    
+
+    nload(t,true);
+    mvprintw(1,t,"+");
+    getch();
+
+    wmove(stdscr,1,t);
+    wrefresh(stdscr);
+
+    mvprintw(0,t,"%c",s[t]);
+    getch();
+
+    mvchgat(0,t,1, A_NORMAL,1,NULL);
+    wmove(stdscr,1,t);
+    wrefresh(stdscr);
+    
+    
+    
+//
+
+    sort(s.begin()+1+t,s.end());
+}
+for(i=minind;i<n;++i)
+{
+    nload(i,true);
+    mvprintw(1,i,"+");
+    getch();
+
+    wmove(stdscr,1,t);
+    wrefresh(stdscr);
+
+    mvprintw(0,i,"%c",s[i]);
+    getch();
+
+    mvchgat(0,i,1, A_NORMAL,1,NULL);
+    wmove(stdscr,1,i);
+    wrefresh(stdscr);
+}
+
+wmove(stdscr,3,0);
+wrefresh(stdscr);
+return 0;
+
+printw("%c",s[0]);
+printw("%s",s.c_str());
+getch();
+
+endwin();
+return 0;
+}
+
+
